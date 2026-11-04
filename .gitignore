@@ -1,0 +1,36 @@
+# 비밀 값
+.env
+
+# 규정 원본과 인덱스는 저장소에 올리지 않는다
+data/raw/*
+!data/raw/.gitkeep
+# 중복 정리 등으로 색인에서 뺀 규정 파일
+data/excluded/
+data/chroma/
+data/chunks/
+# 평가셋과 평가 결과에도 규정 내용(질문·정답·규정명)이 들어간다
+data/eval/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+
+# 로컬에 받아 둔 모델
+models/
+
+# Gradio 실행 기록·flag 파일 (대화 내용이 남을 수 있다)
+.gradio/
+
+# 강의 자료 (저작권) — 로컬 학습용으로만 둔다
+docs/pdf_files/
+docs/examples/
+
+# 설명 그림 작업 파일
+.archify/
+
+# 실사용 질문 주제·사내 카테고리 이름이 들어간 문서
+docs/2026-11-04/오늘_작업_정리.md
+docs/2026-10-28/split_chunk_구현기록.md
+docs/2026-10-29/eval_set_template.md
