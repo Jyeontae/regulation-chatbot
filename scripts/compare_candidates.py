@@ -1,4 +1,6 @@
-"""리랭크 후보 모으기 비교: 합친 유사도 상위 N개(max) vs 검색어별 몫(quota) — docs/2026-11-04/후보모으기_비교.md
+"""리랭크 후보 모으기 비교: 합친 유사도 상위 N개(max) vs 검색어별 몫(quota) vs 둘의 합집합
+
+docs/2026-11-04/후보모으기_비교.md (max·quota, max8 채택), docs/2026-11-05/후보모으기_합집합_비교.md (max8 ∪ quota)
 
 저장된 검색어(--rewrite-from)를 재사용해 API 호출 없이 로컬에서 잰다.
 모든 설정이 후보를 다듬은 검색어로 리랭크해 상위 k개를 남긴다 (지금 챗봇과 같음).
@@ -41,15 +43,32 @@ def quota_candidates(m: int) -> Callable[[list[Hit], list[Hit], list[Hit]], list
     return pick
 
 
+def union_candidates(n: int, m: int) -> Callable[[list[Hit], list[Hit], list[Hit]], list[Hit]]:
+    """max n ∪ quota m: 합친 순위 상위 n개에 검색어별 상위 m개를 더한다. 합친 순위 순서로 둔다."""
+    by_max, by_quota = max_candidates(n), quota_candidates(m)
+
+    def pick(merged: list[Hit], original: list[Hit], rewrite: list[Hit]) -> list[Hit]:
+        wanted = {h.doc.id for h in by_max(merged, original, rewrite)} | {
+            h.doc.id for h in by_quota(merged, original, rewrite)
+        }
+        return [h for h in merged if h.doc.id in wanted]
+
+    return pick
+
+
 CONFIGS = {
-    "max5 (지금)": max_candidates(5),
-    "max8": max_candidates(8),
+    "max5": max_candidates(5),
+    "max8 (지금)": max_candidates(8),
     "max10": max_candidates(10),
     "quota3": quota_candidates(3),
     "quota4": quota_candidates(4),
     "quota5": quota_candidates(5),
+    # 11-05: 11-04 4절에서 다음 후보로 적어 둔 합집합. quota5 는 quota4 와 같고 느려 뺐다
+    "max8∪quota2": union_candidates(8, 2),
+    "max8∪quota3": union_candidates(8, 3),
+    "max8∪quota4": union_candidates(8, 4),
 }
-BASELINE = "max5 (지금)"
+BASELINE = "max8 (지금)"
 
 
 class ScoreCache:
@@ -140,7 +159,7 @@ def main() -> None:
     )
 
     base = summary[BASELINE]
-    print("\n[규칙 판정] 지금(max5) 대비: 여러 조항 R@4 상승 / Hit@k 하락 없음 / Hit@1·MRR 하락 ≤0.05 / p90 ≤5초")
+    print(f"\n[규칙 판정] 지금({BASELINE}) 대비:여러 조항 R@4 상승 / Hit@k 하락 없음 / Hit@1·MRR 하락 ≤0.05 / p90 ≤5초")
     for name, s in summary.items():
         if name == BASELINE:
             continue

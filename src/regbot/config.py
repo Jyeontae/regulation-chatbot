@@ -74,7 +74,8 @@ def load_settings() -> Settings:
         retriever_k=int(_get("RETRIEVER_K", "4")),
         retriever_mode=_get("RETRIEVER_MODE", "vector").lower(),
         reranker_model=_get("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3"),
-        rerank_candidates=int(_get("RERANK_CANDIDATES", "0")),
+        # .env 에 줄이 없거나 비어도 운영 값(11-04 결정 8)을 쓴다. 끄려면 0 을 적는다
+        rerank_candidates=int(_get("RERANK_CANDIDATES", "8")),
     )
 
 
