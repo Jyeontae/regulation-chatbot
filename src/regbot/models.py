@@ -14,8 +14,10 @@ if TYPE_CHECKING:
 SUPPORTED_PROVIDERS = ("openai", "anthropic")
 # Claude 의 output_config.effort 값. 지정하지 않으면 Sonnet 은 high 와 같다
 EFFORT_LEVELS = ("low", "medium", "high", "xhigh", "max")
-# 리랭커가 질문 + 청크에서 읽는 최대 토큰 수. 넘는 뒷부분은 잘린다 (bge-reranker-v2-m3 모델 카드 예시 값)
-RERANK_MAX_LENGTH = 512
+# 리랭커가 질문 + 청크에서 읽는 최대 토큰 수. 넘는 뒷부분은 잘린다
+# 11-02~11-04 는 모델 카드 예시 값 512 였다. 가장 긴 청크가 625토큰이라 질문을 붙이면 약 7% 가 잘려 1024 로 늘렸다 (11-05)
+# 한 쌍씩 실행(batch_size=1)이라 패딩이 없어, 512토큰 이하 청크의 계산량은 그대로다
+RERANK_MAX_LENGTH = 1024
 
 
 @lru_cache(maxsize=1)
